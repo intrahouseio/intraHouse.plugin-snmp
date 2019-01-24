@@ -1,0 +1,10 @@
+{
+  "Type": "Type",
+  "YandexToken": "Token",
+  "YandexLng": "Language",
+  "YandexSpeaker": "Speaker",
+  "YandexEmotion": "Emotion",
+  "CacheSize": "Cache size (Mbyte)",
+  "TestSay": "Test sound",
+  "ClearCache": "Clear cache"
+}

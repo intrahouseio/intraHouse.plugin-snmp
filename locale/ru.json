@@ -1,0 +1,10 @@
+{
+  "Type": "Тип",
+  "YandexToken": "Токен",
+  "YandexLng": "Язык",
+  "YandexSpeaker": "Голос",
+  "YandexEmotion": "Эмоция",
+  "CacheSize": "Размер кэша (Мбайт)",
+  "TestSay": "Проверка аудио",
+  "ClearCache": "Очистить кэш"
+}
