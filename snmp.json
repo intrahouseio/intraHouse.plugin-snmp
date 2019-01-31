@@ -49,7 +49,11 @@
               { "id": "table", "name": "TABLE" },
               { "id": "trap", "name": "TRAP" }
             ]
-          }
+          },
+          "oid": { "name": "$Oid", "order": 2, "type": "STRING" },
+          "trap-oid": { "name": "$TrapOid", "order": 3, "type": "STRING" },
+          "interval": { "name": "$Interval", "order": 4, "type": "NUMBER" },
+          "dn": { "name": "$Device", "order": 5, "type": "autocomplete", "data": "devicesdroplist" },
         }
       }
     },
@@ -61,7 +65,11 @@
       "version": "snmp.Version1"
     },
     "defaultchild": {
-      "type": "get"
+      "type": "get",
+      "oid": "1.3.6.1.2.1.1.5.0",
+      "trap-oid": "",
+      "interval": 60,
+      "dn": ""
     }
   }
 }
