@@ -1,6 +1,6 @@
 {
     "id":"snmp",
-    "description":"Snmp plugin",
+    "description":"SNMP plugin",
     "activation": false,
     "resources": false,
     "cross": true,

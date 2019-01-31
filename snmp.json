@@ -1,115 +1,67 @@
 {
-  "id": "text2speech",
-  "description": "Text to speech plugin",
+  "id": "snmp",
+  "description": "SNMP plugin",
   "gendevices": 0,
-  "service": "info",
-  "single": 1,
+  "smart": 1,
+  "restartOnChannelsChange":1,
+  "single": 0,
   "module": "index.js",
-  "params": [
-    {
-      "name": "type",
-      "note": "$Type",
-      "type": "autocomplete",
-      "data": [
-        {
-          "id": "ynadex",
-          "name": "Yandex TTS"
-        }
-      ]
-    },
-    {
-      "name": "yandex_token",
-      "note": "$YandexToken",
-      "type": "STRING",
-      "val": ""
-    },
-    {
-      "name": "yandex_lng",
-      "note": "$YandexLng",
-      "type": "autocomplete",
-      "visible": "data.type === 'ynadex'",
-      "data": [
-        {
-          "id": "ru-RU",
-          "name": "ru-RU"
-        },
-        {
-          "id": "en-US",
-          "name": "en-US"
-        },
-        {
-          "id": "uk-UK",
-          "name": "uk-UK"
-        },
-        {
-          "id": "tr-TR",
-          "name": "tr-TR"
-        }
-      ]
-    },
-    {
-      "name": "yandex_speaker",
-      "note": "$YandexSpeaker",
-      "type": "autocomplete",
-      "visible": "data.type === 'ynadex'",
-      "data": [
-        {
-          "id": "alyss",
-          "name": "Alyss"
-        },
-        {
-          "id": "jane",
-          "name": "Jane"
-        },
-        {
-          "id": "oksana",
-          "name": "Oksana"
-        },
-        {
-          "id": "omazh",
-          "name": "Omazh"
-        },
-        {
-          "id": "zahar",
-          "name": "Zahar"
-        },
-        {
-          "id": "ermil",
-          "name": "Ermil"
-        }
-      ]
-    },
-    {
-      "name": "yandex_emotion",
-      "note": "$YandexEmotion",
-      "type": "autocomplete",
-      "visible": "data.type === 'ynadex'",
-      "data": [
-        {
-          "id": "good",
-          "name": "Good"
-        },
-        {
-          "id": "neutral",
-          "name": "Neutral"
-        },
-        {
-          "id": "evil",
-          "name": "Evil"
-        }
-      ]
-    },
-    {
-      "name": "cache_size",
-      "note": "$CacheSize",
-      "type": "NUMBER",
-      "val": 100
-    }
-  ],
-  "chpattern": [],
+  "params": [],
   "genrules": {},
-  "commands": [
-    { "id": "TEST_SAY", "name":"$TestSay", "reload":false, "noclose":false, "selected":false },
-    { "id": "CLEAR_CAHCE", "name":"$ClearCache", "reload":false, "noclose":false, "selected":false }
-  ]
+  "commands": [],
+  "sch": {
+    "parent": true,
+    "scheme": {
+      "tools": { "filter": false, "fixed": false, "name": "", "order": -1, "type": "parent", "width": 30 },
+      "host": { "filter": true, "fixed": false, "name": "$Url", "order": 1, "type": "STRING", "width": 250 }
+    },
+    "record": {
+      "parent": {
+        "name": "$Parent",
+        "order": 0,
+        "toolbar": false,
+        "properties": {
+          "host": { "name": "$Host", "order": 0, "type": "STRING" },
+          "port": { "name": "$Port", "order": 1, "type": "NUMBER" },
+          "community": { "name": "$Community", "order": 2, "type": "STRING" },
+          "transport": { "name": "$Transport", "order": 3,  "type": "autocomplete",
+            "data": [
+              { "id": "udp4", "name": "UDP4" },
+              { "id": "udp6", "name": "UDP6" }
+            ]
+          },
+          "version": { "name": "$Version", "order": 4,  "type": "autocomplete",
+            "data": [
+              { "id": "snmp.Version1", "name": "VERSION1" },
+              { "id": "snmp.Version2c", "name": "VERSION2C" }
+            ]
+          }
+        }
+      },
+      "child": {
+        "name": "$Child",
+        "order": 1,
+        "toolbar": false,
+        "properties": {
+          "type": { "name": "$Type", "order": 1,  "type": "autocomplete",
+            "data": [
+              { "id": "get", "name": "GET" },
+              { "id": "table", "name": "TABLE" },
+              { "id": "trap", "name": "TRAP" }
+            ]
+          }
+        }
+      }
+    },
+    "default": {
+      "host": "127.0.0.1",
+      "port": 161,
+      "community": "public",
+      "transport": "udp4",
+      "version": "snmp.Version1"
+    },
+    "defaultchild": {
+      "type": "get"
+    }
+  }
 }
