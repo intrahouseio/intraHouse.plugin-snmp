@@ -1,10 +1,6 @@
 {
   "Type": "Тип",
-  "YandexToken": "Токен",
-  "YandexLng": "Язык",
-  "YandexSpeaker": "Голос",
-  "YandexEmotion": "Эмоция",
-  "CacheSize": "Размер кэша (Мбайт)",
-  "TestSay": "Проверка аудио",
-  "ClearCache": "Очистить кэш"
+  "TableOid": "Table OID",
+  "GetOid": "Get OID",
+  "TrapOid": "Reverse trap OID"
 }
