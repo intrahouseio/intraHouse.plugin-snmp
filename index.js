@@ -134,9 +134,9 @@ function workerListener(item) {
 }
 
 function workerPolling(port, pool) {
-    const session = snmp.createSession (null, 'public', { sourcePort: 161 });
+    const session = snmp.createSession (null, 'public', { sourcePort: 161, version: snmp.Version2c, });
 
-
+/*
     session.get('192.168.0.144', ['1.3.6.1.2.1.1.5.0'], (varbinds, item) => {
       console.log(item[0].value.toString())
     });
@@ -144,10 +144,10 @@ function workerPolling(port, pool) {
     session.get('192.168.0.142', ['1.3.6.1.2.1.1.5.0'], (varbinds, item) => {
       console.log(item[0].value.toString())
     });
+*/
 
 
-
-   session.subtree('192.168.0.142', '1.3.6.1.4.1.40418.2.6.2.1', (varbinds) => {
+   session.subtree('192.168.0.142', '1.3.6.1.2.1.6.13.1', (varbinds) => {
        varbinds.forEach(item => console.log(item.oid, item.value.toString()))
    }, () => {});
 
