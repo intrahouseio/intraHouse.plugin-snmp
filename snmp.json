@@ -35,8 +35,8 @@
           },
           "version": { "name": "$Version", "order": 4,  "type": "autocomplete",
             "data": [
-              { "id": "snmp.Version1", "name": "VERSION1" },
-              { "id": "snmp.Version2c", "name": "VERSION2C" }
+              { "id": "snmp.Version1", "name": 0 },
+              { "id": "snmp.Version2c", "name": 1 }
             ]
           }
         }
@@ -69,7 +69,7 @@
       "trap_port": 162,
       "community": "public",
       "transport": "udp4",
-      "version": "snmp.Version1"
+      "version": 0,
     },
     "defaultchild": {
       "type": "get",

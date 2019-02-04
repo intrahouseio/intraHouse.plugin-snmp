@@ -28,13 +28,13 @@ function setParent(item) {
   STORE.parents.push(item);
 }
 
-function setWorkerP({ host, port }, type, oid, interval) {
+function setWorkerP({ host, port, version, community, transport }, type, oid, interval) {
   if (!STORE.workers.polling[port]) {
     STORE.workers.polling[port] = {}
   }
   STORE
     .workers
-    .polling[port][`${oid}_${interval}`] = { host, port, type, oid, interval };
+    .polling[port][`${oid}_${interval}`] = { host, port, version, community, transport, type, oid, interval };
 }
 
 function setWorkerL({ host, trap_port}) {
@@ -134,23 +134,26 @@ function workerListener(item) {
 }
 
 function workerPolling(port, pool) {
-    const session = snmp.createSession (null, 'public', { sourcePort: 161, version: snmp.Version2c, });
+    const session = snmp.createSession (null, 'public2', { sourcePort: port });
+  /*
 
-/*
-    session.get('192.168.0.144', ['1.3.6.1.2.1.1.5.0'], (varbinds, item) => {
-      console.log(item[0].value.toString())
+    session.get('192.168.0.144', ['1.3.6.1.2.1.1.5.0'], (err, item) => {
+      console.log(err)
+
     });
 
-    session.get('192.168.0.142', ['1.3.6.1.2.1.1.5.0'], (varbinds, item) => {
-      console.log(item[0].value.toString())
+    session.get('192.168.0.142', ['1.3.6.1.2.1.1.5.0'], (err, item) => {
+      console.log(err)
+
     });
+
 */
 
-
+/*
    session.subtree('192.168.0.142', '1.3.6.1.2.1.6.13.1', (varbinds) => {
        varbinds.forEach(item => console.log(item.oid, item.value.toString()))
-   }, () => {});
-
+   }, error => console.log(error));
+*/
 
 }
 

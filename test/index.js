@@ -20,7 +20,7 @@ const config = [
     trap_port: 162,
     community: 'public1',
     transport: 'udp4',
-    version: 'snmp.Version1'
+    version: 0,
   },
   {
     id: '4',
