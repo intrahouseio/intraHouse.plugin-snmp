@@ -122,10 +122,82 @@ function initStore(data = []) {
 }
 
 function messageTrap(data) {
+  plugin.debug(`TRAP ${data.oid}, value: ${data.value.toString()}`)
+
   if (STORE.links[data.oid]) {
     STORE.links[data.oid]
       .forEach(i => plugin.setDeviceValue(i.dn, data.value))
   }
+}
+
+function messageGet(err, info, data) {
+  data.forEach(i => plugin.debug(`GET ${info.oid}, oid: ${i.oid}, value: ${i.value.toString()}`))
+  if (err === null) {
+    data
+      .forEach(item => {
+        if (STORE.links[item.oid]) {
+          STORE.links[item.oid]
+            .forEach(dn => plugin.setDeviceValue(dn, item.value.toString()))
+        }
+      })
+  } else {
+    if (STORE.links[info.oid]) {
+      STORE.links[info.oid]
+        .forEach(dn => plugin.setDeviceError(dn, err.message))
+    }
+  }
+}
+
+function messageTable(err, info, data) {
+  data.forEach(i => plugin.debug(`TABLE ${info.oid}, oid: ${i.oid}, value: ${i.value.toString()}`))
+
+  if (err === null) {
+    data
+      .forEach(item => {
+        if (STORE.links[item.oid]) {
+          STORE.links[item.oid]
+            .forEach(dn => plugin.setDeviceValue(dn, item.value.toString()))
+        }
+      })
+  } else {
+    Object
+      .keys(STORE.childs)
+      .forEach(key =>
+        STORE.childs[key]
+          .forEach(i => {
+            if (
+              i.type === 'table' &&
+              i.table_oid === info.oid
+            ) {
+              if (STORE.links[i.get_oid]) {
+                STORE.links[i.get_oid]
+                  .forEach(dn => plugin.setDeviceError(dn, err.message))
+              }
+            }
+          })
+      )
+  }
+}
+
+function taskPooling(item) {
+  const session = snmp.createSession (item.host, item.community, {
+    sourcePort: item.port,
+    version: item.version,
+    transport: item.transport,
+  });
+
+  function req() {
+    if (item.type === 'get') {
+      session.get([item.oid], (err, data) => messageGet(err, item, data));
+    }
+
+    if (item.type === 'table') {
+      session.subtree(item.oid, data => messageTable(null, item, data), err => messageTable(err, item, []));
+    }
+  }
+
+  setInterval(req, item.interval * 1000);
+  req();
 }
 
 function workerListener(item) {
@@ -134,27 +206,9 @@ function workerListener(item) {
 }
 
 function workerPolling(port, pool) {
-    const session = snmp.createSession (null, 'public2', { sourcePort: port });
-  /*
-
-    session.get('192.168.0.144', ['1.3.6.1.2.1.1.5.0'], (err, item) => {
-      console.log(err)
-
-    });
-
-    session.get('192.168.0.142', ['1.3.6.1.2.1.1.5.0'], (err, item) => {
-      console.log(err)
-
-    });
-
-*/
-
-/*
-   session.subtree('192.168.0.142', '1.3.6.1.2.1.6.13.1', (varbinds) => {
-       varbinds.forEach(item => console.log(item.oid, item.value.toString()))
-   }, error => console.log(error));
-*/
-
+  Object
+    .keys(pool)
+    .forEach(key => taskPooling(pool[key]));
 }
 
 function startWorkers(data = []) {
@@ -172,39 +226,3 @@ plugin.on('start', () => {
   initStore(plugin.getChannels());
   startWorkers();
 });
-
-
-
-
-
-
- /*
-const trap1 = new Trap({ port: 162 });
-const trap2 = new Trap({ port: 162 });
-
-
-trap1.on('data', data => console.log(1, data))
-trap2.on('data', data => console.log(2, data))
-
-
-
-
- const session2 = snmp.createSession ('192.168.0.144', 'public', { sourcePort: 161 });
-
-
- session.subtree('1.3.6.1.4.1.40418.2.6.2.1', (varbinds) => {
-     varbinds.forEach(item => console.log(2, item.oid, item.value.toString()))
-   }, () => {});
-
-
- session2.subtree('1.3.6.1.4.1.40418.2.6.2.1', (varbinds) => {
-   varbinds.forEach(item => console.log(2, item.oid, item.value.toString()))
- }, () => {});
-
-
-
- session.get(['1.3.6.1.4.1.40418.2.6.1.1.1.1.3.519134465'], (err, val) => {
-   console.log(err, val)
- });
-
- */

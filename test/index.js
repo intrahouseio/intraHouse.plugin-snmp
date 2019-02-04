@@ -15,10 +15,10 @@ const config = [
   {
     id: '3',
     unit: 'snmp1',
-    host: '192.168.0.1',
+    host: '192.168.0.144',
     port: 161,
     trap_port: 162,
-    community: 'public1',
+    community: 'public',
     transport: 'udp4',
     version: 0,
   },
@@ -32,7 +32,7 @@ const config = [
     trap_oid: '1.0.0.0.0.0.0.0.100',
     table_oid: '1.3.6.1.2.1.2.2',
     parse: '',
-    get_oid: '1.0.0.0.0.0.0.0.1',
+    get_oid: '1.3.6.1.2.1.1.5.0',
     type: 'get'
   },
   {
@@ -45,7 +45,7 @@ const config = [
     trap_oid: '',
     table_oid: '1.3.6.1.2.1.2.2',
     parse: '',
-    get_oid: '1.0.0.0.0.0.0.0.1',
+    get_oid: '1.3.6.1.2.1.1.5.0',
     type: 'get'
   },
   {
@@ -56,9 +56,9 @@ const config = [
     number: false,
     dn: 'LAMP_2_5',
     trap_oid: '1.0.0.0.0.0.0.0.300',
-    table_oid: '1.0.0.0.0.0.0.0.2',
+    table_oid: '1.3.6.1.4.1.40418.2.6.1.1.1',
     parse: '',
-    get_oid: '1.0.0.0.0.0.0.0.3',
+    get_oid: '1.3.6.1.4.1.40418.2.6.1.1.1.1.3.3857210625',
     type: 'table'
   },
   {
