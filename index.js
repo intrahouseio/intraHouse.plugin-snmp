@@ -225,6 +225,14 @@ function taskPooling(item) {
     transport: item.transport,
   });
 
+  session.on("error", e => {
+    if (item.type === 'get') {
+      messageGet(new Error(`Request timed or ${e.message}`), item, [])
+    } else {
+      messageTable(new Error(`Request timed or ${e.message}`), item, [])
+    }
+  })
+
   function req() {
     if (item.type === 'get') {
       session.get([item.oid], (err, data) => messageGet(err, item, data));
