@@ -19,6 +19,17 @@ const STORE = {
 };
 
 
+function createFunction(string) {
+  if (string !== '') {
+    try {
+      return new Function('value', `return ${string}`);
+    } catch (e) {
+      return new Function('value', `return String(value)`);
+    }
+  }
+  return new Function('value', `return String(value)`);
+}
+
 function setChild(item) {
   STORE.childs[item.parentid].push(item);
 }
@@ -43,34 +54,34 @@ function setWorkerL({ host, trap_port}) {
     .listener[`${trap_port}`] = { host, port: trap_port};
 }
 
-function setLink(oid, dn) {
+function setLink(oid, dn, parser) {
   if (!STORE.links[oid]) {
     STORE.links[oid] = {};
   }
-  STORE.links[oid][dn] = { dn };
+  STORE.links[oid][dn] = { dn, parser: createFunction(parser) };
 }
 
 function mappingGet(parent, child) {
   if (child.get_oid !== '') {
     setWorkerP(parent, 'get', child.get_oid, child.interval);
-    setLink(child.get_oid, child.dn);
+    setLink(child.get_oid, child.dn, child.parse);
   }
 }
 
 function mappingTable(parent, child) {
   if (child.get_oid !== '') {
     setWorkerP(parent, 'table', child.table_oid, child.interval);
-    setLink(child.get_oid, child.dn);
+    setLink(child.get_oid, child.dn, child.parse);
   }
 }
 
 function mappingTrap(type, item) {
   if (type === REVERSE_TRAP_EXTRA && item.trap_oid  !== '') {
-    setLink(item.trap_oid, item.dn);
+    setLink(item.trap_oid, item.dn, item.parse);
   }
 
   if (type === REVERSE_TRAP_ORIGIN && item.get_oid !== '') {
-    setLink(item.get_oid, item.dn);
+    setLink(item.get_oid, item.dn, item.parse);
   }
 }
 
@@ -126,37 +137,36 @@ function messageTrap(data) {
 
   if (STORE.links[data.oid]) {
     STORE.links[data.oid]
-      .forEach(i => plugin.setDeviceValue(i.dn, data.value))
+      .forEach(link => plugin.setDeviceValue(link.dn, link.parser(data.value)))
   }
 }
 
 function messageGet(err, info, data) {
-  data.forEach(i => plugin.debug(`GET ${info.oid}, oid: ${i.oid}, value: ${i.value.toString()}`))
   if (err === null) {
+    data.forEach(i => plugin.debug(`GET ${info.oid}, oid: ${i.oid}, value: ${i.value.toString()}`))
     data
       .forEach(item => {
         if (STORE.links[item.oid]) {
           STORE.links[item.oid]
-            .forEach(dn => plugin.setDeviceValue(dn, item.value.toString()))
+            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(item.value)))
         }
       })
   } else {
     if (STORE.links[info.oid]) {
       STORE.links[info.oid]
-        .forEach(dn => plugin.setDeviceError(dn, err.message))
+        .forEach(link => plugin.setDeviceError(link.dn, err.message))
     }
   }
 }
 
 function messageTable(err, info, data) {
-  data.forEach(i => plugin.debug(`TABLE ${info.oid}, oid: ${i.oid}, value: ${i.value.toString()}`))
-
   if (err === null) {
+    data.forEach(i => plugin.debug(`TABLE ${info.oid}, oid: ${i.oid}, value: ${i.value.toString()}`))
     data
       .forEach(item => {
         if (STORE.links[item.oid]) {
           STORE.links[item.oid]
-            .forEach(dn => plugin.setDeviceValue(dn, item.value.toString()))
+            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(item.value)))
         }
       })
   } else {
@@ -171,7 +181,7 @@ function messageTable(err, info, data) {
             ) {
               if (STORE.links[i.get_oid]) {
                 STORE.links[i.get_oid]
-                  .forEach(dn => plugin.setDeviceError(dn, err.message))
+                  .forEach(link => plugin.setDeviceError(link.dn, err.message))
               }
             }
           })

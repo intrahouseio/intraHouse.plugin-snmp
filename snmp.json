@@ -15,7 +15,9 @@
       "tools": { "filter": false, "fixed": false, "name": "", "order": -1, "type": "parent", "width": 30 },
       "host": { "filter": true, "fixed": false, "name": "$Host", "order": 1, "type": "STRING", "width": 200 },
       "type": { "filter": true, "fixed": false, "name": "$Type", "order": 2, "type": "STRING", "width": 100 },
-      "get_oid": { "filter": true, "fixed": false, "name": "$GetOid", "order": 2, "type": "STRING", "width": 250 }
+      "get_oid": { "filter": true, "fixed": false, "name": "$GetOid", "order": 3, "type": "STRING", "width": 250 },
+      "interval": { "filter": true, "fixed": false, "name": "$Interval", "order": 4, "type": "STRING", "width": 150 },
+      "dn": { "filter": true, "fixed": false, "name": "$Device", "order": 5, "type": "STRING", "width": 200 }
     },
     "record": {
       "parent": {
@@ -35,8 +37,8 @@
           },
           "version": { "name": "$Version", "order": 4,  "type": "autocomplete",
             "data": [
-              { "id": "snmp.Version1", "name": 0 },
-              { "id": "snmp.Version2c", "name": 1 }
+              { "id": 0, "name": "Version1" },
+              { "id": 1, "name": "Version2c" }
             ]
           }
         }
@@ -55,11 +57,10 @@
           },
           "table_oid": { "name": "$TableOid", "order": 2, "type": "STRING", "visible": "data.type === 'table'" },
           "get_oid": { "name": "$GetOid", "order": 3, "type": "STRING" },
-          "trap_oid": { "name": "$TrapOid", "order": 4, "type": "STRING", "visible": "(data.type === 'get' || data.type === 'table')" },
+          "trap_oid": { "name": "$TrapOid", "order": 4, "type": "STRING", "visible": "false" },
           "interval": { "name": "$Interval", "order": 5, "type": "NUMBER", "visible": "(data.type === 'get' || data.type === 'table')" },
           "dn": { "name": "$Device", "order": 6, "type": "autocomplete", "data": "devicesdroplist" },
-          "parse": { "name": "$Parse", "order": 7, "type": "STRING" },
-          "number": { "name": "$Number", "order": 8, "type": "cb" }
+          "parse": { "name": "$Parse", "order": 7, "type": "TEXTAREA" }
         }
       }
     },
@@ -78,7 +79,7 @@
       "trap_oid": "",
       "interval": 60,
       "dn": "",
-      "parse": "",
+      "parse": "String(value)",
       "number": false
     }
   }
