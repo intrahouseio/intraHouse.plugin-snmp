@@ -16,6 +16,7 @@ const STORE = {
     polling: {},
   },
   links: {},
+  actions: {},
 };
 
 
@@ -30,6 +31,30 @@ function createFunction(string) {
   return new Function('value', `return String(value)`);
 }
 
+function getValue(type, value) {
+  switch (type) {
+    case 'Integer':
+      return Number(value);
+    case 'Boolean':
+      return Boolean(value);
+    case 'OctetString':
+      return String(value);
+    default:
+      return value;
+  }
+}
+
+function setAction(parent, child) {
+  if (child.dn !== '' && child.actions) {
+    child.actions.forEach(i => {
+      if (!STORE.actions[child.dn]) {
+          STORE.actions[child.dn] = {};
+      }
+      STORE.actions[child.dn][i.act] = { session: null, act: i, parent };
+    })
+  }
+}
+
 function setChild(item) {
   STORE.childs[item.parentid].push(item);
 }
@@ -39,7 +64,7 @@ function setParent(item) {
   STORE.parents.push(item);
 }
 
-function setWorkerP({ host, port, version, community, transport }, type, oid, interval) {
+function setWorkerP({ host, port, version, community, transport, dn }, type, oid, interval) {
   if (!STORE.workers.polling[port]) {
     STORE.workers.polling[port] = {}
   }
@@ -109,8 +134,12 @@ function createStruct() {
       const childs = STORE.childs[parent.id];
 
       setWorkerL(parent);
+
       childs
-        .forEach(child => mappingLinks(parent, child));
+        .forEach(child => {
+          mappingLinks(parent, child);
+          setAction(parent, child);
+        });
     })
 
     Object
@@ -231,6 +260,29 @@ function startWorkers(data = []) {
     .forEach(key => workerPolling(key, STORE.workers.polling[key]));
 }
 
+plugin.on('device_action', (device) => {
+  plugin.debug(device);
+  if (STORE.actions[device.dn] && STORE.actions[device.dn][device.prop]) {
+    const item = STORE.actions[device.dn][device.prop];
+    if (item.session === null) {
+      STORE.actions[device.dn][device.prop].session = snmp.createSession (item.parent.host, item.parent.community, {
+        sourcePort: item.parent.port,
+        version: item.parent.version,
+        transport: item.parent.transport,
+      });
+    }
+    const varbinds = [{
+      oid: item.act.oid,
+      type: snmp.ObjectType[item.act.type],
+      value: getValue(item.act.type, item.act.value),
+    }];
+    STORE.actions[device.dn][device.prop].session.set(varbinds, (err, varbinds) => {
+      if (err === null) {
+        plugin.setDeviceValue(device.dn, device.prop === 'on' ? 1 : 0);
+      }
+    })
+  }
+});
 
 plugin.on('start', () => {
   initStore(plugin.getChannels());

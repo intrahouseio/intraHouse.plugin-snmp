@@ -14,5 +14,8 @@
   "Interval": "Интервал (сек)",
   "Device": "Устройство",
   "Parse": "Формула расчета значения",
-  "Number": "Convert to number"
+  "Number": "Convert to number",
+  "Actions": "Команды",
+  "Action": "Команда",
+  "Value": "Значение"
 }

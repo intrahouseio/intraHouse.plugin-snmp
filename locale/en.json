@@ -14,5 +14,8 @@
   "Interval": "Interval (sec)",
   "Device": "Device",
   "Parse": "Formula for calculating the value",
-  "Number": "Convert to number"
+  "Number": "Convert to number",
+  "Actions":"Actions",
+  "Action":"Action",
+  "Value":"Value"
 }
