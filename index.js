@@ -87,17 +87,13 @@ function setLink(oid, dn, parser) {
 }
 
 function mappingGet(parent, child) {
-  if (child.get_oid !== '') {
-    setWorkerP(parent, 'get', child.get_oid, child.interval);
-    setLink(child.get_oid, child.dn, child.parse);
-  }
+  setWorkerP(parent, 'get', child.get_oid, child.interval);
+  setLink(child.get_oid, child.dn, child.parse);
 }
 
 function mappingTable(parent, child) {
-  if (child.get_oid !== '') {
-    setWorkerP(parent, 'table', child.table_oid, child.interval);
-    setLink(child.get_oid, child.dn, child.parse);
-  }
+  setWorkerP(parent, 'table', child.table_oid, child.interval);
+  setLink(child.get_oid, child.dn, child.parse);
 }
 
 function mappingTrap(type, item) {
