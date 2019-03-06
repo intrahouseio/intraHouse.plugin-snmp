@@ -15,7 +15,7 @@ const config = [
   {
     id: '3',
     unit: 'snmp1',
-    host: '127.0.0.1',
+    host: '192.168.0.119',
     port: 161,
     trap_port: 162,
     community: 'public',

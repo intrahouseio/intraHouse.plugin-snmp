@@ -70,7 +70,7 @@ function setWorkerP({ host, port, version, community, transport, dn }, type, oid
   }
   STORE
     .workers
-    .polling[port][`${oid}_${interval}`] = { host, port, version, community, transport, type, oid, interval };
+    .polling[port][`${host}_${oid}_${interval}`] = { host, port, version, community, transport, type, oid, interval };
 }
 
 function setWorkerL({ host, trap_port}) {
@@ -79,45 +79,46 @@ function setWorkerL({ host, trap_port}) {
     .listener[`${trap_port}`] = { host, port: trap_port};
 }
 
-function setLink(oid, dn, parser) {
-  if (!STORE.links[oid]) {
-    STORE.links[oid] = {};
+function setLink(oid, dn, parser, host) {
+  const id = `${host}_${oid}`
+  if (!STORE.links[id]) {
+    STORE.links[id] = {};
   }
-  STORE.links[oid][dn] = { dn, parser: createFunction(parser) };
+  STORE.links[id][dn] = { dn, parser: createFunction(parser) };
 }
 
 function mappingGet(parent, child) {
   setWorkerP(parent, 'get', child.get_oid, child.interval);
-  setLink(child.get_oid, child.dn, child.parse);
+  setLink(child.get_oid, child.dn, child.parse, parent.host);
 }
 
 function mappingTable(parent, child) {
   setWorkerP(parent, 'table', child.table_oid, child.interval);
-  setLink(child.get_oid, child.dn, child.parse);
+  setLink(child.get_oid, child.dn, child.parse, parent.host);
 }
 
-function mappingTrap(type, item) {
+function mappingTrap(type, item, host) {
   if (type === REVERSE_TRAP_EXTRA && item.trap_oid  !== '') {
-    setLink(item.trap_oid, item.dn, item.parse);
+    setLink(item.trap_oid, item.dn, item.parse, host);
   }
 
   if (type === REVERSE_TRAP_ORIGIN && item.get_oid !== '') {
-    setLink(item.get_oid, item.dn, item.parse);
+    setLink(item.get_oid, item.dn, item.parse, host);
   }
 }
 
 function mappingLinks(parent, child) {
   switch (child.type) {
     case 'trap':
-      mappingTrap(REVERSE_TRAP_ORIGIN, child);
+      mappingTrap(REVERSE_TRAP_ORIGIN, child, parent.host);
       break;
     case 'get':
       mappingGet(parent, child);
-      mappingTrap(REVERSE_TRAP_EXTRA, child);
+      mappingTrap(REVERSE_TRAP_EXTRA, child, parent.host);
       break;
     case 'table':
       mappingTable(parent, child);
-      mappingTrap(REVERSE_TRAP_EXTRA, child);
+      mappingTrap(REVERSE_TRAP_EXTRA, child, parent.host);
       break;
     default:
       break;
@@ -157,11 +158,11 @@ function initStore(data = []) {
     createStruct();
 }
 
-function messageTrap(data) {
+function messageTrap({ data, info }) {
   plugin.debug(`TRAP ${data.oid}, value: ${data.value.toString()}`)
 
-  if (STORE.links[data.oid]) {
-    STORE.links[data.oid]
+  if (STORE.links[`${info.address}_${data.oid}`]) {
+    STORE.links[`${info.address}_${data.oid}`]
       .forEach(link => plugin.setDeviceValue(link.dn, link.parser(data.value)))
   }
 }
@@ -171,14 +172,14 @@ function messageGet(err, info, data) {
     data.forEach(i => plugin.debug(`GET ${info.oid}, oid: ${i.oid}, value: ${i.value.toString()}`))
     data
       .forEach(item => {
-        if (STORE.links[item.oid]) {
-          STORE.links[item.oid]
+        if (STORE.links[`${info.host}_${item.oid}`]) {
+          STORE.links[`${info.host}_${item.oid}`]
             .forEach(link => plugin.setDeviceValue(link.dn, link.parser(item.value)))
         }
       })
   } else {
-    if (STORE.links[info.oid]) {
-      STORE.links[info.oid]
+    if (STORE.links[`${info.host}_${info.oid}`]) {
+      STORE.links[`${info.host}_${info.oid}`]
         .forEach(link => plugin.setDeviceError(link.dn, err.message))
     }
   }
@@ -189,8 +190,8 @@ function messageTable(err, info, data) {
     data.forEach(i => plugin.debug(`TABLE ${info.oid}, oid: ${i.oid}, value: ${i.value.toString()}`))
     data
       .forEach(item => {
-        if (STORE.links[item.oid]) {
-          STORE.links[item.oid]
+        if (STORE.links[`${info.host}_${item.oid}`]) {
+          STORE.links[`${info.host}_${item.oid}`]
             .forEach(link => plugin.setDeviceValue(link.dn, link.parser(item.value)))
         }
       })
@@ -204,8 +205,8 @@ function messageTable(err, info, data) {
               i.type === 'table' &&
               i.table_oid === info.oid
             ) {
-              if (STORE.links[i.get_oid]) {
-                STORE.links[i.get_oid]
+              if (STORE.links[`${info.host}_${i.get_oid}`]) {
+                STORE.links[`${info.host}_${i.get_oid}`]
                   .forEach(link => plugin.setDeviceError(link.dn, err.message))
               }
             }
