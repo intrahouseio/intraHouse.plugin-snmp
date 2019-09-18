@@ -28,65 +28,20 @@ const config = [
     interval: 60,
     parentid: '3',
     number: false,
-    dn: 'LAMP_2_1',
+    dn: 'DIMM1',
     trap_oid: '1.0.0.0.0.0.0.0.100',
     table_oid: '1.3.6.1.2.1.2.2',
     parse: '',
     get_oid: '1.3.6.1.2.1.1.5.0',
-    type: 'get'
+    type: 'get',
+    actions: [
+      {
+        act: "set",
+        oid: "1.3.6.1.4.1.2.6.2.2.1.2.1",
+        type: "OctetString",
+      }
+    ]
   },
-  {
-    id: '14',
-    unit: 'snmp1',
-    interval: 60,
-    parentid: '3',
-    number: false,
-    dn: 'LAMP_2_4',
-    trap_oid: '',
-    table_oid: '1.3.6.1.2.1.2.2',
-    parse: '',
-    get_oid: '1.3.6.1.2.1.1.5.0',
-    type: 'get'
-  },
-  {
-    id: '5',
-    unit: 'snmp1',
-    interval: 60,
-    parentid: '3',
-    number: false,
-    dn: 'LAMP_2_5',
-    trap_oid: '1.0.0.0.0.0.0.0.300',
-    table_oid: '1.3.6.1.4.1.40418.2.6.2.2',
-    parse: '',
-    get_oid: '1.3.6.1.4.1.40418.2.6.1.1.1.1.3.3857210625',
-    type: 'table'
-  },
-  {
-    id: '6',
-    unit: 'snmp1',
-    interval: 30,
-    parentid: '3',
-    number: false,
-    dn: 'LAMP_1_1',
-    trap_oid: '1.0.0.0.0.0.0.0.400',
-    table_oid: '1.0.0.0.0.0.0.0.2',
-    parse: '',
-    get_oid: '1.0.0.0.0.0.0.0.4',
-    type: 'table'
-  },
-  {
-    id: '7',
-    unit: 'snmp1',
-    interval: 60,
-    parentid: '3',
-    number: false,
-    dn: 'LAMP_1_2',
-    trap_oid: '',
-    table_oid: '1.3.6.1.2.1.2.2',
-    parse: '',
-    get_oid: '1.3.6.1.4.1.40418.2.6.2.2',
-    type: 'trap'
-  }
 ];
 
 const ps = child.fork(modulepath, [unitid]);
@@ -128,3 +83,7 @@ ps.on('close', code => {
 });
 
 ps.send({type: 'debug', mode: true });
+
+setTimeout(() => {
+  ps.send({ type: 'act', data: [ { dn: 'DIMM1', prop: 'set', val: 28 } ] })
+}, 2000);
