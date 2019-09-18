@@ -266,7 +266,6 @@ function startWorkers(data = []) {
 }
 
 plugin.on('device_action', (device) => {
-  plugin.debug(device);
   if (STORE.actions[device.dn] && STORE.actions[device.dn][device.prop]) {
     const item = STORE.actions[device.dn][device.prop];
     if (item.session === null) {
@@ -279,8 +278,9 @@ plugin.on('device_action', (device) => {
     const varbinds = [{
       oid: item.act.oid,
       type: snmp.ObjectType[item.act.type],
-      value: getValue(item.act.type, item.act.value),
+      value: getValue(item.act.type, device.prop === 'set' ? device.value : item.act.value),
     }];
+    plugin.debug(varbinds);
     STORE.actions[device.dn][device.prop].session.set(varbinds, (err, varbinds) => {
       if (err === null) {
         plugin.setDeviceValue(device.dn, device.prop === 'on' ? 1 : 0);

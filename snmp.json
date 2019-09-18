@@ -71,7 +71,7 @@
           "actions": { "name": "$Actions", "order": 8, "type": "multi",
             "data": {
               "scheme": {
-                  "act": { "name": "$Action", "type": "droplist", "order": 0, "data":[{"id":"on", "name":"on"}, {"id":"off", "name":"off"},{"id":"toggle", "name":"toggle"}] },
+                  "act": { "name": "$Action", "type": "droplist", "order": 0, "data":[{"id":"on", "name":"on"}, {"id":"off", "name":"off"},{"id":"toggle", "name":"toggle"},{"id":"set", "name":"set"}] },
                   "oid": { "name": "$GetOid", "order": 0, "type": "STRING" },
                   "type": { "name": "$Type", "order": 1,  "type": "autocomplete",
                     "data": [
@@ -80,7 +80,7 @@
                       { "id": "OctetString", "name": "String" }
                     ]
                   },
-                  "value": { "name": "$Value", "order": 4, "type": "STRING" }
+                  "value": { "name": "$Value", "order": 4, "type": "STRING", "visible": "data.act !== 'set'"  }
                 },
                 "default": {
                   "act": "on",
