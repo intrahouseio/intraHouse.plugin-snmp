@@ -279,7 +279,7 @@ plugin.on('device_action', (device) => {
     const varbinds = [{
       oid: item.act.oid,
       type: snmp.ObjectType[item.act.type],
-      value: getValue(item.act.type, device.prop === 'set' ? device.val : item.act.val),
+      value: getValue(item.act.type, device.prop === 'set' ? device.val : item.act.value),
     }];
     plugin.debug(varbinds);
     STORE.actions[device.dn][device.prop].session.set(varbinds, (err, varbinds) => {
