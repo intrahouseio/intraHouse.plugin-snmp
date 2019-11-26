@@ -164,7 +164,7 @@ function messageTrap({ data, info }) {
 
   if (STORE.links[`${info.address}_${data.oid}`]) {
     STORE.links[`${info.address}_${data.oid}`]
-      .forEach(link => plugin.setDeviceValue(link.dn, link.parser(checkValue(data.value))))
+      .forEach(link => plugin.setDeviceValue(link.dn, link.parser(checkValue(data.type, data.value))))
   }
 }
 
@@ -175,7 +175,7 @@ function messageGet(err, info, data) {
       .forEach(item => {
         if (STORE.links[`${info.host}_${item.oid}`]) {
           STORE.links[`${info.host}_${item.oid}`]
-            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(checkValue(item.value))))
+            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(checkValue(item.type, item.value))))
         }
       })
   } else {
@@ -193,7 +193,7 @@ function messageTable(err, info, data) {
       .forEach(item => {
         if (STORE.links[`${info.host}_${item.oid}`]) {
           STORE.links[`${info.host}_${item.oid}`]
-            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(checkValue(item.value))))
+            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(checkValue(item.type, item.value))))
         }
       })
   } else {
@@ -291,10 +291,10 @@ plugin.on('device_action', (device) => {
   }
 });
 
-function checkValue(value) {
-  if (value.type !== undefined && value.type === 'Buffer') {
+function checkValue(type, value) {
+  if (type === 70) {
     const temp = [0, 0, 0, 0, 0, 0, 0, 0];
-    const temp2 = value.data.reverse();
+    const temp2 = JSON.parse(value).data.reverse();
     temp2.forEach((i, k) => {
       temp[k] = i;
     });
