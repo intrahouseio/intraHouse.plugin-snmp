@@ -2,6 +2,7 @@ const Plugin = require('./lib/plugin');
 const Trap = require('./lib/trap');
 
 const snmp = require ('net-snmp');
+const Uint64LE = require("int64-buffer").Uint64LE;
 
 const plugin = new Plugin();
 
@@ -163,7 +164,7 @@ function messageTrap({ data, info }) {
 
   if (STORE.links[`${info.address}_${data.oid}`]) {
     STORE.links[`${info.address}_${data.oid}`]
-      .forEach(link => plugin.setDeviceValue(link.dn, link.parser(data.value)))
+      .forEach(link => plugin.setDeviceValue(link.dn, link.parser(checkValue(data.value))))
   }
 }
 
@@ -174,7 +175,7 @@ function messageGet(err, info, data) {
       .forEach(item => {
         if (STORE.links[`${info.host}_${item.oid}`]) {
           STORE.links[`${info.host}_${item.oid}`]
-            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(item.value)))
+            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(checkValue(item.value))))
         }
       })
   } else {
@@ -192,7 +193,7 @@ function messageTable(err, info, data) {
       .forEach(item => {
         if (STORE.links[`${info.host}_${item.oid}`]) {
           STORE.links[`${info.host}_${item.oid}`]
-            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(item.value)))
+            .forEach(link => plugin.setDeviceValue(link.dn, link.parser(checkValue(item.value))))
         }
       })
   } else {
@@ -289,6 +290,18 @@ plugin.on('device_action', (device) => {
     })
   }
 });
+
+function checkValue(value) {
+  if (value.type !== undefined && value.type === 'Buffer') {
+    const temp = [0, 0, 0, 0, 0, 0, 0, 0];
+    const temp2 = value.data.reverse();
+    temp2.forEach((i, k) => {
+      temp[k] = i;
+    });
+    return temp;
+  }
+  return value;
+}
 
 plugin.on('start', () => {
   initStore(plugin.getChannels());
