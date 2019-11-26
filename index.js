@@ -298,7 +298,7 @@ function checkValue(value) {
     temp2.forEach((i, k) => {
       temp[k] = i;
     });
-    return temp;
+    return new Uint64LE(new Buffer(temp)).toNumber();
   }
   return value;
 }
