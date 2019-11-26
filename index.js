@@ -294,7 +294,7 @@ plugin.on('device_action', (device) => {
 function checkValue(type, value) {
   if (type === 70) {
     const temp = [0, 0, 0, 0, 0, 0, 0, 0];
-    const temp2 = JSON.parse(value).data.reverse();
+    const temp2 = Uint8Array.from(value).reverse();
     temp2.forEach((i, k) => {
       temp[k] = i;
     });
