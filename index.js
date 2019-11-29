@@ -300,6 +300,12 @@ function checkValue(type, value) {
     });
     return new Uint64LE(new Buffer(temp)).toNumber();
   }
+
+  if (type === 68) {
+    const temp2 = Uint8Array.from(value).reverse();
+    const b = new Buffer(temp2);
+    return b.readFloatLE();
+  }
   return value;
 }
 
